@@ -10,8 +10,8 @@ var router *lmdrouter.Router
 
 func init() {
 	router = lmdrouter.NewRouter("")
-	router.Route("POST", "/registration/signup", controllers.AccountSignup)
-	router.Route("POST", "/registration/login", controllers.AccountLogin)
+	router.Route("POST", "/signup", controllers.AccountSignup)
+	router.Route("POST", "/login", controllers.AccountLogin)
 }
 
 func main() {
