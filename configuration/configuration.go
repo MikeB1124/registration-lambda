@@ -12,14 +12,12 @@ import (
 )
 
 type Configration struct {
-	Poynt PoyntConfigration `json:"poynt"`
+	MongoDB MongoDB `json:"mongodb"`
 }
 
-type PoyntConfigration struct {
-	URL           string `json:"api_url"`
-	ApplicationID string `json:"application_id"`
-	BusinessID    string `json:"business_id"`
-	PrivateKey    string `json:"private_key"`
+type MongoDB struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 var Config Configration
