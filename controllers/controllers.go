@@ -11,8 +11,8 @@ import (
 )
 
 type Response struct {
-	Error   string `json:"error"`
-	Message string `json:"message"`
+	StatusCode int    `json:"statusCode"`
+	Message    string `json:"message"`
 }
 
 func AccountSignup(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
@@ -21,20 +21,20 @@ func AccountSignup(ctx context.Context, event events.APIGatewayProxyRequest) (ev
 	var user db.User
 	err := json.Unmarshal([]byte(event.Body), &user)
 	if err != nil {
-		return createResponse(400, Response{Error: err.Error()})
+		return createResponse(Response{Message: err.Error(), StatusCode: 400})
 	}
 
 	if user.Username == "" || user.Password == "" {
-		return createResponse(400, Response{Error: "Username and password are required"})
+		return createResponse(Response{Message: "Username and password are required", StatusCode: 400})
 	}
 
 	exixts, err := db.UserExists(user)
 	if err != nil {
-		return createResponse(500, Response{Error: err.Error()})
+		return createResponse(Response{Message: err.Error(), StatusCode: 500})
 	}
 
 	if exixts {
-		return createResponse(400, Response{Error: "User already exists"})
+		return createResponse(Response{Message: "User already exists", StatusCode: 400})
 	}
 
 	timeZone, _ := time.LoadLocation("America/Los_Angeles")
@@ -42,10 +42,10 @@ func AccountSignup(ctx context.Context, event events.APIGatewayProxyRequest) (ev
 	user.LastLogin = ""
 
 	if err := db.InsertNewUser(user); err != nil {
-		return createResponse(500, Response{Error: err.Error()})
+		return createResponse(Response{Message: err.Error(), StatusCode: 500})
 	}
 
-	return createResponse(200, Response{Message: "You have signed up!"})
+	return createResponse(Response{Message: "You have signed up!", StatusCode: 200})
 }
 
 func AccountLogin(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
@@ -54,28 +54,28 @@ func AccountLogin(ctx context.Context, event events.APIGatewayProxyRequest) (eve
 	var user db.User
 	err := json.Unmarshal([]byte(event.Body), &user)
 	if err != nil {
-		return createResponse(400, Response{Error: err.Error()})
+		return createResponse(Response{Message: err.Error(), StatusCode: 400})
 	}
 
 	if user.Username == "" || user.Password == "" {
-		return createResponse(400, Response{Error: "Username and password are required"})
+		return createResponse(Response{Message: "Username and password are required", StatusCode: 400})
 	}
 
 	validLogin, err := db.ValidLogin(user)
 	if err != nil {
-		return createResponse(500, Response{Error: err.Error()})
+		return createResponse(Response{Message: err.Error(), StatusCode: 500})
 	}
 
 	if !validLogin {
-		return createResponse(400, Response{Error: "Invalid username or password"})
+		return createResponse(Response{Message: "Invalid username or password", StatusCode: 401})
 	}
 
 	timeZone, _ := time.LoadLocation("America/Los_Angeles")
 	lastLogin := time.Now().UTC().In(timeZone).Format("2006-01-02T15:04:05Z")
 
 	if err := db.UpdateLastLogin(lastLogin, user.Username); err != nil {
-		return createResponse(500, Response{Error: err.Error()})
+		return createResponse(Response{Message: err.Error(), StatusCode: 500})
 	}
 
-	return createResponse(200, Response{Message: "You have logged in!"})
+	return createResponse(Response{Message: "You have logged in!", StatusCode: 200})
 }

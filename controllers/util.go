@@ -6,10 +6,10 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 )
 
-func createResponse(statusCode int, response Response) (events.APIGatewayProxyResponse, error) {
+func createResponse(response Response) (events.APIGatewayProxyResponse, error) {
 	responseBody, err := json.Marshal(response)
 	if err != nil {
-		responseBody, _ = json.Marshal(Response{Error: err.Error()})
+		responseBody, _ = json.Marshal(Response{Message: err.Error()})
 		return events.APIGatewayProxyResponse{
 			StatusCode: 500,
 			Body:       string(responseBody),
@@ -17,7 +17,7 @@ func createResponse(statusCode int, response Response) (events.APIGatewayProxyRe
 	}
 
 	return events.APIGatewayProxyResponse{
-		StatusCode: statusCode,
+		StatusCode: response.StatusCode,
 		Body:       string(responseBody),
 	}, nil
 }
